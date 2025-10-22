@@ -1,0 +1,60 @@
+# Python caches and bytecode
+__pycache__/
+*.py[cod]
+*.pyo
+*.so
+*.egg-info/
+*.eggs/
+*.dist-info/
+dist/
+build/
+
+# Virtual environments and environment files
+venv/
+.venv/
+.env
+.env.*
+pip-wheel-metadata/
+
+# IDE/editor
+.vscode/
+.idea/
+
+# OS-specific
+.DS_Store
+Thumbs.db
+
+# Logs, temps, backups
+*.log
+*.tmp
+*.temp
+*.bak
+.cache/
+
+# Test and type checker caches
+**/.pytest_cache/
+**/.mypy_cache/
+**/.ipynb_checkpoints/
+
+# Notebooks (optional)
+*.ipynb
+
+# ML artifacts and model weights
+runs/
+ml/runs/
+ml/summarization/runs/
+**/*.pt
+**/*.pth
+**/*.bin
+
+# Streamlit secrets (keep config.toml, ignore secrets)
+**/.streamlit/secrets.toml
+
+# Local auth data (do not commit user/session/analytics files)
+auth/users.json
+auth/sessions.json
+auth/analytics.json
+
+# Reports/exports (if generated locally)
+exports/
+reports/

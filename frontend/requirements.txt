@@ -1,0 +1,6 @@
+# Frontend requirements for JV Cinelytics
+# Streamlit, visualization libraries, etc.
+streamlit
+requests
+plotly
+pandas 
