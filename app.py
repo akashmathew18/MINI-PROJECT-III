@@ -402,7 +402,7 @@ def main():
     
     # Top navigation bar
     st.markdown('<h1 class="main-header">🎬 JV Cinelytics</h1>', unsafe_allow_html=True)
-    st.markdown(f'<p class="subtitle">Welcome back, <strong>{current_user["username"]}</strong> | The Ultimate Script Analysis Platform</p>', unsafe_allow_html=True)
+    st.markdown(f'<p class="subtitle">Intelligent Script Analysis for Smarter Filmmaking | Welcome back, <strong>{current_user["username"]}</strong></p>', unsafe_allow_html=True)
     
     # Navigation buttons
     page = show_top_nav(current_user["role"])
@@ -414,6 +414,8 @@ def main():
         show_analytics()
     elif page == "👥 User Management":
         show_user_management()
+    elif page == "📊 My Dashboard":
+        show_user_dashboard()
     elif page == "📊 Script Analysis":
         show_script_analysis()
     elif page == "🔮 Genre Prediction":
@@ -428,7 +430,7 @@ def show_top_nav(role):
     if role == "admin":
         nav_options = ["🏠 Home", "📊 Analytics", "👥 User Management", "📊 Script Analysis", "🔮 Genre Prediction", "⚙️ Settings", "🚪 Logout"]
     else:
-        nav_options = ["🏠 Home", "📊 Script Analysis", "🔮 Genre Prediction", "⚙️ Settings", "🚪 Logout"]
+        nav_options = ["🏠 Home", "📊 My Dashboard", "📊 Script Analysis", "🔮 Genre Prediction", "⚙️ Settings", "🚪 Logout"]
 
     # Use a unique key to prevent collisions
     nav_choice = st.session_state.get('nav_choice', nav_options[0])
@@ -448,7 +450,7 @@ def show_top_nav(role):
 def show_login_page():
     """Show login/register page"""
     st.markdown('<h1 class="main-header">🎬 JV Cinelytics</h1>', unsafe_allow_html=True)
-    st.markdown('<p class="subtitle">Professional Script Analysis Platform</p>', unsafe_allow_html=True)
+    st.markdown('<p class="subtitle">Intelligent Script Analysis for Smarter Filmmaking</p>', unsafe_allow_html=True)
     
     col1, col2, col3 = st.columns([1, 2, 1])
     
@@ -670,6 +672,77 @@ def show_analytics():
     else:
         st.markdown('<div class="info-box">📝 No recent activities recorded</div>', unsafe_allow_html=True)
 
+def show_user_dashboard():
+    """Show personal analytics dashboard for the current user"""
+    require_auth()
+    user = get_current_user()
+    if not user:
+        st.warning("Please login to view dashboard")
+        return
+    st.markdown('<div class="section-header">📊 My Dashboard</div>', unsafe_allow_html=True)
+
+    stats = analytics_manager.get_user_analytics(user["username"])
+
+    col1, col2, col3, col4 = st.columns(4)
+    with col1:
+        st.metric("Scripts Analyzed", stats["script_analyses"])
+    with col2:
+        st.metric("Genre Predictions", stats["genre_predictions"])
+    with col3:
+        st.metric("ML Trainings", stats["ml_trainings"])
+    with col4:
+        st.metric("Total Files", stats["total_files_analyzed"])
+
+    col1, col2 = st.columns(2)
+    with col1:
+        st.markdown("### Favorite Genre")
+        st.markdown(f'<div class="metric-card"><h4>{stats["favorite_genre"]}</h4></div>', unsafe_allow_html=True)
+    with col2:
+        st.markdown("### Total Processing Time")
+        st.markdown(f'<div class="metric-card"><h4>{stats["total_processing_time"]:.2f}s</h4></div>', unsafe_allow_html=True)
+
+    # Visualization
+    st.markdown('<div class="section-header">📊 My Data Visualization</div>', unsafe_allow_html=True)
+    user_analyses = [a for a in analytics_manager.data.get("script_analyses", []) if a.get("username") == user["username"]]
+    user_predictions = [p for p in analytics_manager.data.get("genre_predictions", []) if p.get("username") == user["username"]]
+
+    colv1, colv2 = st.columns(2, gap="large")
+    with colv1:
+        st.markdown("### 🎭 Genre Distribution (My Analyses)")
+        if user_analyses:
+            from collections import Counter
+            genre_counts = Counter([a.get("genre", "unknown") for a in user_analyses])
+            genre_df = pd.DataFrame(list(genre_counts.items()), columns=["Genre", "Count"])
+            fig = px.pie(genre_df, values="Count", names="Genre", title="My Script Genres", color_discrete_sequence=px.colors.qualitative.Set1)
+            fig.update_layout(plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)', font_color='white')
+            st.plotly_chart(fig, use_container_width=True)
+        else:
+            st.markdown('<div class="info-box">📊 No personal genre data yet</div>', unsafe_allow_html=True)
+    with colv2:
+        st.markdown("### 📈 Activity Over Time")
+        all_events = []
+        for a in user_analyses:
+            all_events.append({"type": "Analysis", "timestamp": a.get("timestamp", "")})
+        for p in user_predictions:
+            all_events.append({"type": "Prediction", "timestamp": p.get("timestamp", "")})
+        if all_events:
+            adf = pd.DataFrame(all_events)
+            adf["date"] = pd.to_datetime(adf["timestamp"]).dt.date
+            count_df = adf.groupby(["date", "type"]).size().reset_index(name="Count")
+            fig2 = px.bar(count_df, x="date", y="Count", color="type", title="My Activity (Daily)", color_discrete_sequence=["#dc2626", "#6b7280"])
+            fig2.update_layout(plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)', font_color='white', xaxis=dict(color='white'), yaxis=dict(color='white'))
+            st.plotly_chart(fig2, use_container_width=True)
+        else:
+            st.markdown('<div class="info-box">📝 No personal activity recorded yet</div>', unsafe_allow_html=True)
+
+    st.markdown('<div class="section-header">📝 Recent Activities</div>', unsafe_allow_html=True)
+    if stats["recent_activities"]:
+        df = pd.DataFrame(stats["recent_activities"])
+        st.dataframe(df, use_container_width=True, height=300)
+    else:
+        st.markdown('<div class="info-box">No recent activities</div>', unsafe_allow_html=True)
+
+# Keep existing admin user management below
 def show_user_management():
     """Show user management page (admin only)"""
     require_auth()
