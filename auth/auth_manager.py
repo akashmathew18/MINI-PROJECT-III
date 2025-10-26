@@ -227,6 +227,37 @@ class AuthManager:
         self.save_users()
         return {"success": True, "message": f"Password for '{username}' changed successfully"}
     
+    def update_own_profile(self, username: str, email: str = None) -> Dict[str, Any]:
+        """Allow users to update their own profile information"""
+        if username not in self.users:
+            return {"success": False, "message": "User not found"}
+        
+        if email is not None:
+            self.users[username]["email"] = email
+        
+        self.users[username]["last_modified"] = datetime.now().isoformat()
+        self.save_users()
+        return {"success": True, "message": "Profile updated successfully"}
+    
+    def change_own_password(self, username: str, current_password: str, new_password: str) -> Dict[str, Any]:
+        """Allow users to change their own password"""
+        if username not in self.users:
+            return {"success": False, "message": "User not found"}
+        
+        # Verify current password
+        hashed_current = self.hash_password(current_password)
+        if self.users[username]["password_hash"] != hashed_current:
+            return {"success": False, "message": "Current password is incorrect"}
+        
+        if len(new_password) < 6:
+            return {"success": False, "message": "New password must be at least 6 characters"}
+        
+        hashed_password = self.hash_password(new_password)
+        self.users[username]["password_hash"] = hashed_password
+        self.users[username]["password_changed"] = datetime.now().isoformat()
+        self.save_users()
+        return {"success": True, "message": "Password changed successfully"}
+    
     def delete_user(self, username: str) -> Dict[str, Any]:
         """Delete a user (admin function)"""
         if username not in self.users:
