@@ -1,0 +1,29 @@
+{
+  "sentiment": {
+    "accuracy": 0.56187624750499,
+    "macro_precision": 0.5544858071625052,
+    "macro_recall": 0.5986309254004561,
+    "macro_f1": 0.5657526669952507,
+    "weighted_precision": 0.5479167063786916,
+    "weighted_recall": 0.56187624750499,
+    "weighted_f1": 0.5432420955630134
+  },
+  "genre": {
+    "accuracy": 0.999001996007984,
+    "macro_precision": 0.9989711934156378,
+    "macro_recall": 0.9989898989898991,
+    "macro_f1": 0.9989758474626266,
+    "weighted_precision": 0.9990112367856878,
+    "weighted_recall": 0.999001996007984,
+    "weighted_f1": 0.9990020383995734
+  },
+  "emotion": {
+    "accuracy": 0.13273453093812376,
+    "macro_precision": 0.09930666401790672,
+    "macro_recall": 0.14299904274835212,
+    "macro_f1": 0.10986169686771043,
+    "weighted_precision": 0.09342845846876557,
+    "weighted_recall": 0.13273453093812376,
+    "weighted_f1": 0.10342458077330585
+  }
+}

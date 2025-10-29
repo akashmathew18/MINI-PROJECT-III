@@ -2313,24 +2313,59 @@ class ScriptAnalyzer:
             return self._keyword_genre_classification(text_for_genre)
     
     def _keyword_genre_classification(self, text: str) -> str:
-        """Simple keyword-based genre classification"""
+        """Enhanced keyword-based genre classification with better keyword coverage"""
         text_lower = text.lower()
         
+        # Enhanced keyword lists with more comprehensive coverage
         genre_keywords = {
-            'action': ['fight', 'chase', 'explosion', 'gun', 'battle', 'run', 'escape'],
-            'comedy': ['laugh', 'funny', 'joke', 'hilarious', 'comedy', 'humor'],
-            'romance': ['love', 'kiss', 'romance', 'heart', 'relationship', 'marriage'],
-            'horror': ['scary', 'monster', 'ghost', 'fear', 'terrifying', 'dark'],
-            'thriller': ['mystery', 'detective', 'crime', 'suspense', 'investigation'],
-            'sci-fi': ['space', 'robot', 'future', 'technology', 'alien', 'scientist'],
-            'drama': ['family', 'life', 'death', 'emotion', 'serious', 'tragedy']
+            'action': [
+                'fight', 'chase', 'explosion', 'gun', 'battle', 'run', 'escape',
+                'gunfire', 'combat', 'attack', 'punch', 'kick', 'sword', 'weapon',
+                'war', 'soldier', 'mission', 'danger', 'pursuit', 'crash'
+            ],
+            'comedy': [
+                'laugh', 'funny', 'joke', 'hilarious', 'comedy', 'humor',
+                'smile', 'giggle', 'amusing', 'witty', 'silly', 'goofy',
+                'ridiculous', 'absurd', 'comedic', 'lighthearted'
+            ],
+            'romance': [
+                'love', 'kiss', 'romance', 'heart', 'relationship', 'marriage',
+                'romantic', 'passion', 'together', 'forever', 'couple',
+                'date', 'wedding', 'boyfriend', 'girlfriend', 'sweetheart'
+            ],
+            'horror': [
+                'scary', 'monster', 'ghost', 'fear', 'terrifying', 'dark',
+                'scream', 'blood', 'terror', 'nightmare', 'evil', 'demon',
+                'dead', 'corpse', 'haunted', 'creepy', 'dread'
+            ],
+            'thriller': [
+                'mystery', 'detective', 'crime', 'suspense', 'investigation',
+                'killer', 'murder', 'suspect', 'clue', 'witness', 'conspiracy',
+                'danger', 'tension', 'threat', 'stalker', 'chase'
+            ],
+            'sci-fi': [
+                'space', 'robot', 'future', 'technology', 'alien', 'scientist',
+                'cybernetic', 'galaxy', 'starship', 'android', 'quantum',
+                'dimension', 'time travel', 'laboratory', 'experiment'
+            ],
+            'drama': [
+                'family', 'life', 'death', 'emotion', 'serious', 'tragedy',
+                'cries', 'tears', 'emotional', 'difficult', 'relationship',
+                'struggle', 'conflict', 'regret', 'sorrow'
+            ]
         }
         
+        # Calculate weighted scores (longer matches get more weight)
         scores = {}
         for genre, keywords in genre_keywords.items():
-            score = sum(1 for keyword in keywords if keyword in text_lower)
+            score = 0
+            for keyword in keywords:
+                if keyword in text_lower:
+                    # Give more weight to longer, more specific keywords
+                    score += len(keyword.split()) * 1.5 if len(keyword.split()) > 1 else 1
             scores[genre] = score
         
+        # Return genre with highest score, default to drama
         if not any(scores.values()):
             return 'drama'  # Default
         
